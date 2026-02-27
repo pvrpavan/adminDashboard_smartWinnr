@@ -1,0 +1,143 @@
+<div class="analytics">
+  <div class="analytics-header">
+    <div class="header-gradient">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>Analytics & Reports</h1>
+          <p>Detailed insights into your platform performance</p>
+        </div>
+        <div class="period-selector">
+          <label>Time Period:</label>
+          <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+            <option [value]="7">Last 7 Days</option>
+            <option [value]="14">Last 14 Days</option>
+            <option [value]="30">Last 30 Days</option>
+            <option [value]="90">Last 90 Days</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="loader"></div>
+    <p>Loading analytics data...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Metrics Cards -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon bounce">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-value">{{ metrics.avgBounceRate }}%</span>
+          <span class="metric-label">Avg. Bounce Rate</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-value">{{ formatDuration(metrics.avgSessionDuration) }}</span>
+          <span class="metric-label">Avg. Session Duration</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon conversion">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-value">{{ metrics.avgConversionRate }}%</span>
+          <span class="metric-label">Avg. Conversion Rate</span>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon views">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-value">{{ formatNumber(metrics.totalPageViews) }}</span>
+          <span class="metric-label">Total Page Views</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-row">
+      <div class="chart-card full">
+        <div class="chart-header">
+          <h3>User Activity</h3>
+          <span class="chart-badge">Active Users & Signups</span>
+        </div>
+        <div class="chart-body tall">
+          <canvas baseChart
+            [data]="userActivityData"
+            [options]="userActivityOptions"
+            type="line">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="charts-row two-col">
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Page Views</h3>
+          <span class="chart-badge">Daily Traffic</span>
+        </div>
+        <div class="chart-body">
+          <canvas baseChart
+            [data]="pageViewsData"
+            [options]="pageViewsOptions"
+            type="bar">
+          </canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Order Status</h3>
+          <span class="chart-badge">Distribution</span>
+        </div>
+        <div class="chart-body">
+          <canvas baseChart
+            [data]="salesStatusData"
+            [options]="salesStatusOptions"
+            type="pie">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="charts-row">
+      <div class="chart-card full">
+        <div class="chart-header">
+          <h3>Monthly Revenue</h3>
+          <span class="chart-badge">Last 12 Months</span>
+        </div>
+        <div class="chart-body tall">
+          <canvas baseChart
+            [data]="revenueBarData"
+            [options]="revenueBarOptions"
+            type="bar">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

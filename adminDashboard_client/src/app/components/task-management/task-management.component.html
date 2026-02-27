@@ -1,0 +1,312 @@
+<div class="task-management">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="page-title">
+          <span class="title-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+          </span>
+          Task Management
+        </h1>
+        <p class="page-subtitle">Create, manage and assign tasks to users. Tasks drive the gamification XP system.</p>
+      </div>
+      <button class="btn btn-primary btn-create" (click)="openCreateModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-total">
+      <div class="stat-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.totalTasks }}</span>
+        <span class="stat-label">Total Tasks</span>
+      </div>
+    </div>
+    <div class="stat-card stat-active">
+      <div class="stat-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.activeTasks }}</span>
+        <span class="stat-label">Active Tasks</span>
+      </div>
+    </div>
+    <div class="stat-card stat-inactive">
+      <div class="stat-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.inactiveTasks }}</span>
+        <span class="stat-label">Inactive Tasks</span>
+      </div>
+    </div>
+    <div class="stat-card stat-categories">
+      <div class="stat-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.tasksByCategory.length || 0 }}</span>
+        <span class="stat-label">Categories</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Filter by Category:</label>
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryFilter()" class="filter-select">
+        <option value="">All Categories</option>
+        <option value="onboarding">Onboarding</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="challenge">Challenge</option>
+        <option value="milestone">Milestone</option>
+      </select>
+    </div>
+    <div class="filter-info">
+      Showing {{ tasks.length }} of {{ totalTasks }} tasks
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading tasks...</p>
+  </div>
+
+  <!-- Tasks Table -->
+  <div *ngIf="!loading" class="tasks-table-container">
+    <table class="tasks-table" *ngIf="tasks.length > 0">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Category</th>
+          <th>Difficulty</th>
+          <th>XP Reward</th>
+          <th>Assigned To</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of tasks" class="task-row" [class.inactive]="!task.isActive">
+          <td class="task-info-cell">
+            <div class="task-title">{{ task.title }}</div>
+            <div class="task-desc">{{ task.description || 'No description' }}</div>
+          </td>
+          <td>
+            <span class="badge" [style.background]="getCategoryColor(task.category) + '20'" [style.color]="getCategoryColor(task.category)">
+              {{ task.category }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [style.background]="getDifficultyColor(task.difficulty) + '20'" [style.color]="getDifficultyColor(task.difficulty)">
+              {{ task.difficulty }}
+            </span>
+          </td>
+          <td>
+            <span class="xp-badge">+{{ task.xpReward }} XP</span>
+          </td>
+          <td>
+            <span class="assigned-badge">{{ task.assignedTo }}</span>
+          </td>
+          <td>
+            <button class="status-toggle" [class.active]="task.isActive" (click)="toggleActive(task)">
+              {{ task.isActive ? 'Active' : 'Inactive' }}
+            </button>
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-assign" title="Assign to users" (click)="openAssignModal(task)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+            </button>
+            <button class="btn-icon btn-edit" title="Edit task" (click)="openEditModal(task)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button class="btn-icon btn-delete" title="Delete task" (click)="openDeleteModal(task)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="tasks.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </div>
+      <h3>No tasks yet</h3>
+      <p>Create your first task to get the gamification system going!</p>
+      <button class="btn btn-primary" (click)="openCreateModal()">Create Task</button>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button class="page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">Previous</button>
+      <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button class="page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Edit Task' : 'Create New Task' }}</h2>
+        <button class="modal-close" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="modalError" class="modal-error">{{ modalError }}</div>
+
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" [(ngModel)]="taskForm.title" placeholder="Enter task title" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="taskForm.description" placeholder="Task description..." rows="3" class="form-input"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>XP Reward</label>
+            <input type="number" [(ngModel)]="taskForm.xpReward" min="1" max="1000" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select [(ngModel)]="taskForm.category" class="form-input">
+              <option value="onboarding">Onboarding</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="challenge">Challenge</option>
+              <option value="milestone">Milestone</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Difficulty</label>
+            <select [(ngModel)]="taskForm.difficulty" class="form-input">
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Assign To</label>
+            <select [(ngModel)]="taskForm.assignedTo" class="form-input">
+              <option value="all">All Users</option>
+              <option value="user">Users Only</option>
+              <option value="manager">Managers</option>
+              <option value="admin">Admins</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="saveTask()" [disabled]="modalLoading">
+          {{ modalLoading ? 'Saving...' : (isEditing ? 'Update Task' : 'Create Task') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header modal-header-danger">
+        <h2>Delete Task</h2>
+        <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong>"{{ deleteTarget?.title }}"</strong>? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
+          {{ deleteLoading ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Modal -->
+  <div *ngIf="showAssignModal" class="modal-overlay" (click)="closeAssignModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Assign Task</h2>
+        <button class="modal-close" (click)="closeAssignModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="assign-info">Assigning: <strong>{{ assignTaskTitle }}</strong></p>
+
+        <div class="form-group">
+          <label>Assign to specific user (or leave empty for all eligible users):</label>
+          <select [(ngModel)]="assignUserId" class="form-input">
+            <option value="">All Eligible Users</option>
+            <option *ngFor="let user of users" [value]="user._id">{{ user.name }} ({{ user.email }})</option>
+          </select>
+        </div>
+
+        <div *ngIf="assignMessage" class="assign-message" [class.success]="!assignMessage.includes('Failed')">
+          {{ assignMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAssignModal()">Close</button>
+        <button class="btn btn-primary" (click)="assignTask()" [disabled]="assignLoading">
+          {{ assignLoading ? 'Assigning...' : 'Assign Task' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

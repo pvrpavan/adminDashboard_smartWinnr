@@ -1,0 +1,228 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <h1>Settings</h1>
+    <p>Manage your account settings and preferences</p>
+  </div>
+
+  <div class="success-toast" *ngIf="saveSuccess">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    Settings saved successfully!
+  </div>
+
+  <div class="settings-layout">
+    <!-- Tabs -->
+    <div class="settings-tabs">
+      <button [class.active]="activeTab === 'profile'" (click)="setActiveTab('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Profile
+      </button>
+      <button [class.active]="activeTab === 'notifications'" (click)="setActiveTab('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        Notifications
+      </button>
+      <button [class.active]="activeTab === 'appearance'" (click)="setActiveTab('appearance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        Appearance
+      </button>
+      <button [class.active]="activeTab === 'security'" (click)="setActiveTab('security')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        Security
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="settings-content">
+      <!-- Profile Tab -->
+      <div *ngIf="activeTab === 'profile'" class="settings-panel">
+        <h2>Profile Information</h2>
+        <p class="panel-desc">Update your personal details</p>
+
+        <div class="profile-avatar-section">
+          <div class="large-avatar">{{ getInitials() }}</div>
+          <div>
+            <h3>{{ user?.name }}</h3>
+            <span class="role-text">{{ user?.role }} account</span>
+          </div>
+        </div>
+
+        <form (ngSubmit)="saveProfile()">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" [(ngModel)]="profileForm.name" name="name" />
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" [(ngModel)]="profileForm.email" name="email" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Role</label>
+              <input type="text" [value]="user?.role" disabled />
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <input type="text" [value]="user?.status" disabled />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </form>
+      </div>
+
+      <!-- Notifications Tab -->
+      <div *ngIf="activeTab === 'notifications'" class="settings-panel">
+        <h2>Notification Preferences</h2>
+        <p class="panel-desc">Control how you receive notifications</p>
+
+        <div class="toggle-list">
+          <div class="toggle-item">
+            <div>
+              <h4>Email Notifications</h4>
+              <p>Receive email updates about account activity</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notificationSettings.emailNotifications" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div>
+              <h4>Push Notifications</h4>
+              <p>Receive push notifications in your browser</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notificationSettings.pushNotifications" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div>
+              <h4>Weekly Reports</h4>
+              <p>Receive weekly analytics summary by email</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notificationSettings.weeklyReport" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div>
+              <h4>Security Alerts</h4>
+              <p>Get notified about security events on your account</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notificationSettings.securityAlerts" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-item">
+            <div>
+              <h4>Marketing Emails</h4>
+              <p>Receive promotional content and offers</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="notificationSettings.marketingEmails" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <button class="btn-primary" (click)="saveNotifications()">Save Preferences</button>
+      </div>
+
+      <!-- Appearance Tab -->
+      <div *ngIf="activeTab === 'appearance'" class="settings-panel">
+        <h2>Appearance Settings</h2>
+        <p class="panel-desc">Customize how the dashboard looks</p>
+
+        <div class="form-group">
+          <label>Theme</label>
+          <select [(ngModel)]="appearanceSettings.theme">
+            <option value="light">Light Mode</option>
+            <option value="dark">Dark Mode</option>
+            <option value="auto">System Default</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Language</label>
+          <select [(ngModel)]="appearanceSettings.language">
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Timezone</label>
+          <select [(ngModel)]="appearanceSettings.timezone">
+            <option value="UTC">UTC</option>
+            <option value="EST">Eastern Time (EST)</option>
+            <option value="CST">Central Time (CST)</option>
+            <option value="PST">Pacific Time (PST)</option>
+            <option value="IST">India Standard Time (IST)</option>
+          </select>
+        </div>
+        <button class="btn-primary" (click)="saveAppearance()">Save Settings</button>
+      </div>
+
+      <!-- Security Tab -->
+      <div *ngIf="activeTab === 'security'" class="settings-panel">
+        <h2>Security Settings</h2>
+        <p class="panel-desc">Manage your account security</p>
+
+        <div class="security-section">
+          <div class="security-item">
+            <div>
+              <h4>Change Password</h4>
+              <p>Update your password to keep your account secure</p>
+            </div>
+            <button class="btn-outline">Change Password</button>
+          </div>
+          <div class="security-item">
+            <div>
+              <h4>Two-Factor Authentication</h4>
+              <p>Add an extra layer of security to your account</p>
+            </div>
+            <button class="btn-outline">Enable 2FA</button>
+          </div>
+          <div class="security-item">
+            <div>
+              <h4>Active Sessions</h4>
+              <p>View and manage your active login sessions</p>
+            </div>
+            <button class="btn-outline">View Sessions</button>
+          </div>
+          <div class="security-item danger">
+            <div>
+              <h4>Delete Account</h4>
+              <p>Permanently delete your account and all data</p>
+            </div>
+            <button class="btn-danger">Delete Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

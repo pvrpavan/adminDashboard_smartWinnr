@@ -1,0 +1,277 @@
+<div class="user-dashboard">
+  <!-- XP Popup -->
+  <div class="xp-popup" *ngIf="showXpPopup">
+    <span>+{{ xpPopupAmount }} XP</span>
+  </div>
+
+  <!-- Level Up Animation -->
+  <div class="level-up-overlay" *ngIf="levelUpAnimation">
+    <div class="level-up-content">
+      <div class="level-up-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+      </div>
+      <h2>Level Up!</h2>
+      <p>You reached Level {{ dashboardData?.level }}</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="skeleton-grid">
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+      <div class="skeleton-card"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && dashboardData">
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <div class="hero-left">
+          <div class="greeting-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Level {{ dashboardData.level }} Explorer
+          </div>
+          <h1>Welcome back, {{ dashboardData.name?.split(' ')[0] }}!</h1>
+          <p class="hero-subtitle">Keep up the great work. You're on a {{ dashboardData.streak }}-day streak!</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value">{{ dashboardData.xp }}</span>
+            <span class="hero-stat-label">Total XP</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">#{{ dashboardData.rank }}</span>
+            <span class="hero-stat-label">Global Rank</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">{{ dashboardData.tasksCompleted }}</span>
+            <span class="hero-stat-label">Tasks Done</span>
+          </div>
+        </div>
+      </div>
+      <!-- XP Progress Bar -->
+      <div class="xp-progress-section">
+        <div class="xp-progress-header">
+          <span class="xp-level-badge">LVL {{ dashboardData.level }}</span>
+          <span class="xp-text">{{ dashboardData.currentLevelXp }} / {{ dashboardData.xpForNextLevel }} XP</span>
+          <span class="xp-level-badge next">LVL {{ dashboardData.level + 1 }}</span>
+        </div>
+        <div class="xp-progress-bar">
+          <div class="xp-progress-fill" [style.width.%]="getXpProgress()"></div>
+          <div class="xp-progress-glow" [style.width.%]="getXpProgress()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+      <div class="quick-stat-card streak">
+        <div class="quick-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 23c-3.6 0-8-3.07-8-9.54C4 7.54 8.54 2 12.07 1c0 0 .86 3.11 3.27 5.43C17.7 8.85 20 10.76 20 13.46 20 19.93 15.6 23 12 23z"></path>
+          </svg>
+        </div>
+        <div class="quick-stat-info">
+          <span class="quick-stat-value">{{ dashboardData.streak }}</span>
+          <span class="quick-stat-label">Day Streak</span>
+        </div>
+        <div class="quick-stat-badge">Best: {{ dashboardData.longestStreak }}</div>
+      </div>
+
+      <div class="quick-stat-card tasks">
+        <div class="quick-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="quick-stat-info">
+          <span class="quick-stat-value">{{ getCompletedTasks().length }}/{{ dashboardData.tasks?.length || 0 }}</span>
+          <span class="quick-stat-label">Tasks Completed</span>
+        </div>
+      </div>
+
+      <div class="quick-stat-card achievements">
+        <div class="quick-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+        </div>
+        <div class="quick-stat-info">
+          <span class="quick-stat-value">{{ getUnlockedAchievements().length }}/{{ dashboardData.achievements?.length || 0 }}</span>
+          <span class="quick-stat-label">Achievements</span>
+        </div>
+      </div>
+
+      <div class="quick-stat-card level">
+        <div class="quick-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="quick-stat-info">
+          <span class="quick-stat-value">{{ dashboardData.level }}</span>
+          <span class="quick-stat-label">Current Level</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Tasks Section -->
+      <div class="tasks-section">
+        <div class="section-header">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            Active Tasks
+          </h2>
+          <span class="task-count">{{ getIncompleteTasks().length }} remaining</span>
+        </div>
+
+        <div class="tasks-list">
+          <div class="task-item" *ngFor="let task of getIncompleteTasks(); let i = index"
+               [style.animation-delay]="(i * 0.05) + 's'">
+            <div class="task-left">
+              <div class="task-category-dot" [style.background]="getCategoryColor(task.category)"></div>
+              <div class="task-info">
+                <span class="task-title">{{ task.title }}</span>
+                <span class="task-desc">{{ task.description }}</span>
+              </div>
+            </div>
+            <div class="task-right">
+              <span class="task-xp">+{{ task.xpReward }} XP</span>
+              <button class="btn-complete" (click)="completeTask(task.taskId)"
+                      [disabled]="completingTask === task.taskId">
+                <span *ngIf="completingTask !== task.taskId">Complete</span>
+                <span *ngIf="completingTask === task.taskId" class="btn-spinner"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="no-tasks" *ngIf="getIncompleteTasks().length === 0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <p>All tasks completed! Great job!</p>
+          </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="completed-section" *ngIf="getCompletedTasks().length > 0">
+          <h3>Completed</h3>
+          <div class="completed-tasks">
+            <div class="task-item completed" *ngFor="let task of getCompletedTasks()">
+              <div class="task-left">
+                <div class="task-check">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="task-info">
+                  <span class="task-title">{{ task.title }}</span>
+                  <span class="task-desc">+{{ task.xpReward }} XP earned</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div class="right-sidebar">
+        <!-- Achievements -->
+        <div class="achievements-card">
+          <div class="section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+              </svg>
+              Achievements
+            </h2>
+          </div>
+          <div class="achievements-grid">
+            <div class="achievement-item" *ngFor="let achievement of dashboardData.achievements"
+                 [class.unlocked]="achievement.unlockedAt"
+                 [title]="achievement.description">
+              <div class="achievement-icon" [style.background]="achievement.unlockedAt ? getRarityGradient(achievement.rarity) : ''">
+                <svg viewBox="0 0 24 24" fill="none" [attr.stroke]="achievement.unlockedAt ? getRarityColor(achievement.rarity) : '#cbd5e1'" stroke-width="2">
+                  <path [attr.d]="getAchievementIcon(achievement.icon)"></path>
+                </svg>
+              </div>
+              <span class="achievement-name">{{ achievement.title }}</span>
+              <span class="achievement-rarity" [style.color]="getRarityColor(achievement.rarity)">{{ achievement.rarity }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-card">
+          <div class="section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              Leaderboard
+            </h2>
+          </div>
+          <div class="leaderboard-list">
+            <div class="leaderboard-item" *ngFor="let player of leaderboard; let i = index"
+                 [class.top-3]="i < 3"
+                 [class.is-me]="player.name === dashboardData.name">
+              <span class="lb-rank" [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+                {{ i + 1 }}
+              </span>
+              <div class="lb-avatar">{{ getInitials(player.name) }}</div>
+              <div class="lb-info">
+                <span class="lb-name">{{ player.name }}</span>
+                <span class="lb-xp">{{ player.xp }} XP &middot; Lvl {{ player.level }}</span>
+              </div>
+              <span class="lb-tasks">{{ player.tasksCompleted }} tasks</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-card" *ngIf="dashboardData.activityLog?.length > 0">
+          <div class="section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              Recent Activity
+            </h2>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let activity of dashboardData.activityLog">
+              <div class="activity-dot" [class.achievement]="activity.action === 'achievement_unlocked'"></div>
+              <div class="activity-info">
+                <span class="activity-desc">{{ activity.description }}</span>
+                <span class="activity-meta">
+                  <span class="activity-xp" *ngIf="activity.xpEarned">+{{ activity.xpEarned }} XP</span>
+                  <span class="activity-time">{{ getTimeAgo(activity.timestamp) }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
